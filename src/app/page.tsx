@@ -5,11 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 
 type CheckState = "idle" | "checking" | "success" | "error";
+type HealthResponse = { checks?: { oauth?: boolean } };
 
 export default function Home() {
   const [checkState, setCheckState] = useState<CheckState>("idle");
   const [latency, setLatency] = useState<number | null>(null);
   const [checkedAt, setCheckedAt] = useState<string | null>(null);
+  const [oauthReady, setOauthReady] = useState<boolean | null>(null);
 
   async function checkHealth() {
     setCheckState("checking");
@@ -17,6 +19,8 @@ export default function Home() {
 
     try {
       const response = await fetch("/api/health", { cache: "no-store" });
+      const result = (await response.json()) as HealthResponse;
+      setOauthReady(result.checks?.oauth ?? false);
       if (!response.ok) throw new Error("Health check failed");
 
       setLatency(Math.round(performance.now() - startedAt));
@@ -80,7 +84,11 @@ export default function Home() {
           <p className="status-detail">
             {checkState === "idle" && "Lista para comprobar la conexión"}
             {checkState === "checking" && "Comprobando el servicio..."}
-            {checkState === "success" && `DiezApp respondió en ${latency} ms`}
+            {checkState === "success" && oauthReady
+              ? `DiezApp respondió en ${latency} ms y OAuth está listo`
+              : checkState === "success"
+                ? `DiezApp respondió en ${latency} ms, pero falta configuración`
+                : null}
             {checkState === "error" && "No pudimos confirmar la conexión"}
           </p>
           <div className="status-meta">
