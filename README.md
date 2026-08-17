@@ -1,5 +1,34 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Google OAuth proxy for the DiezApp (Flet) Android app
+
+This backend exists because Google no longer accepts a custom-scheme
+`redirect_uri` (e.g. `oauth2redirect://...`) for the Authorization Code
+flow — it rejects it with `Error 400: invalid_request`. Only an `https://`
+`redirect_uri` is accepted, so this server does the whole OAuth exchange
+with Google and then hands the tokens off to the app via its own
+custom-scheme deep link (see `../diezmapp/README-setup-android-oauth.md`
+section 10 for the full write-up).
+
+Routes (`src/app/api/auth/`):
+
+- `GET /api/auth/login?app_state=...` — starts the flow; redirects to Google.
+- `GET /api/auth/callback` — Google's redirect target; exchanges the code
+  for tokens and redirects back into the app's custom-scheme deep link.
+- `POST /api/auth/refresh` — called directly by the app (not the browser)
+  to refresh an expired `access_token` (requires `client_secret`, which
+  never leaves this server).
+
+### Setup
+
+1. Copy `.env.example` to `.env.local` and fill in `GOOGLE_CLIENT_ID` /
+   `GOOGLE_CLIENT_SECRET` from a Google Cloud **"Web application"** OAuth
+   client (Authorized redirect URI: `https://<this-domain>/api/auth/callback`).
+2. Set `APP_REDIRECT_SCHEME`/`APP_REDIRECT_HOST` to match
+   `[tool.flet.<platform>.deep_linking]` in `diezmapp/pyproject.toml`.
+3. Deploy (e.g. Vercel) and update `BACKEND_BASE_URL` in
+   `diezmapp/src/utils/gdrive_auth.py` with the deployed domain.
+
 ## Getting Started
 
 First, run the development server:
