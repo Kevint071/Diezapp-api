@@ -6,13 +6,20 @@ import {
   STATE_COOKIE,
   VERIFIER_COOKIE,
   buildAppRedirectUrl,
+  buildWebRedirectUrl,
   callbackRedirectUri,
   googleClientId,
   googleClientSecret,
+  WEB_RETURN_URL_COOKIE,
 } from "@/lib/google-oauth";
 
 function clearOAuthCookies(response: NextResponse): void {
-  for (const name of [STATE_COOKIE, VERIFIER_COOKIE, APP_STATE_COOKIE]) {
+  for (const name of [
+    STATE_COOKIE,
+    VERIFIER_COOKIE,
+    APP_STATE_COOKIE,
+    WEB_RETURN_URL_COOKIE,
+  ]) {
     response.cookies.set(name, "", { path: "/api/auth", maxAge: 0 });
   }
 }
@@ -27,11 +34,16 @@ function clearOAuthCookies(response: NextResponse): void {
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const appState = request.cookies.get(APP_STATE_COOKIE)?.value ?? "";
+  const webReturnUrl = request.cookies.get(WEB_RETURN_URL_COOKIE)?.value;
+  const redirect = (params: Record<string, string>) =>
+    webReturnUrl
+      ? buildWebRedirectUrl(webReturnUrl, params)
+      : buildAppRedirectUrl(params);
 
   const error = searchParams.get("error");
   if (error) {
     const response = NextResponse.redirect(
-      buildAppRedirectUrl({ error, app_state: appState })
+      redirect({ error, app_state: appState })
     );
     clearOAuthCookies(response);
     return response;
@@ -44,7 +56,7 @@ export async function GET(request: NextRequest) {
 
   if (!code || !returnedState || !verifier || returnedState !== expectedState) {
     const response = NextResponse.redirect(
-      buildAppRedirectUrl({ error: "invalid_state", app_state: appState })
+      redirect({ error: "invalid_state", app_state: appState })
     );
     clearOAuthCookies(response);
     return response;
@@ -77,7 +89,7 @@ export async function GET(request: NextRequest) {
     const userinfo = await userinfoResponse.json();
 
     const response = NextResponse.redirect(
-      buildAppRedirectUrl({
+      redirect({
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token ?? "",
         expires_in: String(tokens.expires_in ?? 3600),
@@ -89,7 +101,7 @@ export async function GET(request: NextRequest) {
     return response;
   } catch {
     const response = NextResponse.redirect(
-      buildAppRedirectUrl({ error: "server_error", app_state: appState })
+      redirect({ error: "server_error", app_state: appState })
     );
     clearOAuthCookies(response);
     return response;

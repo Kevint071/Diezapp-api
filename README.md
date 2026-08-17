@@ -12,7 +12,8 @@ section 10 for the full write-up).
 
 Routes (`src/app/api/auth/`):
 
-- `GET /api/auth/login?app_state=...` — starts the flow; redirects to Google.
+- `GET /api/auth/login?app_state=...&web_return_url=...` — starts the flow;
+   redirects to Google and optionally returns to a validated Flet web callback.
 - `GET /api/auth/callback` — Google's redirect target; exchanges the code
   for tokens and redirects back into the app's custom-scheme deep link.
 - `POST /api/auth/refresh` — called directly by the app (not the browser)
@@ -28,6 +29,9 @@ Routes (`src/app/api/auth/`):
    `[tool.flet.<platform>.deep_linking]` in `diezmapp/pyproject.toml`.
 3. Deploy (e.g. Vercel) and update `BACKEND_BASE_URL` in
    `diezmapp/src/utils/gdrive_auth.py` with the deployed domain.
+4. For a local Flet web run, use a fixed port such as
+   `flet run --web --port 49801 src/main.py`. The backend automatically allows
+   `http://127.0.0.1:<port>` and `http://localhost:<port>` callback origins.
 
 ## Getting Started
 

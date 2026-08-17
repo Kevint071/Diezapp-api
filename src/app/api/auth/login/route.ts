@@ -9,6 +9,8 @@ import {
   callbackRedirectUri,
   googleClientId,
   oauthCookieOptions,
+  validatedWebReturnUrl,
+  WEB_RETURN_URL_COOKIE,
 } from "@/lib/google-oauth";
 
 function base64url(input: Buffer): string {
@@ -29,6 +31,9 @@ function base64url(input: Buffer): string {
  */
 export async function GET(request: NextRequest) {
   const appState = request.nextUrl.searchParams.get("app_state");
+  const webReturnUrl = validatedWebReturnUrl(
+    request.nextUrl.searchParams.get("web_return_url"),
+  );
   if (!appState) {
     return NextResponse.json({ error: "missing app_state" }, { status: 400 });
   }
@@ -63,5 +68,8 @@ export async function GET(request: NextRequest) {
   response.cookies.set(STATE_COOKIE, googleState, cookieOptions);
   response.cookies.set(VERIFIER_COOKIE, verifier, cookieOptions);
   response.cookies.set(APP_STATE_COOKIE, appState, cookieOptions);
+  if (webReturnUrl) {
+    response.cookies.set(WEB_RETURN_URL_COOKIE, webReturnUrl, cookieOptions);
+  }
   return response;
 }

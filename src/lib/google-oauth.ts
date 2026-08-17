@@ -25,6 +25,7 @@ export const GOOGLE_OAUTH_SCOPE =
 export const STATE_COOKIE = "gdrive_oauth_state";
 export const VERIFIER_COOKIE = "gdrive_oauth_verifier";
 export const APP_STATE_COOKIE = "gdrive_oauth_app_state";
+export const WEB_RETURN_URL_COOKIE = "gdrive_oauth_web_return_url";
 
 export function oauthCookieOptions(request: NextRequest) {
   return {
@@ -76,6 +77,35 @@ export function buildAppRedirectUrl(params: Record<string, string>): string {
   const host = process.env.APP_REDIRECT_HOST || "oauth2redirect";
   const query = new URLSearchParams(params).toString();
   return `${scheme}://${host}/callback${query ? `?${query}` : ""}`;
+}
+
+export function validatedWebReturnUrl(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    const isLoopback =
+      (url.hostname === "127.0.0.1" || url.hostname === "localhost") &&
+      url.protocol === "http:";
+    const configuredOrigins = (process.env.WEB_APP_ORIGINS || "")
+      .split(",")
+      .map((origin) => origin.trim().replace(/\/$/, ""))
+      .filter(Boolean);
+    const isConfiguredOrigin = configuredOrigins.includes(url.origin);
+    if ((!isLoopback && !isConfiguredOrigin) || url.username || url.password) {
+      return null;
+    }
+    return `${url.origin}${url.pathname === "/callback" ? url.pathname : "/callback"}`;
+  } catch {
+    return null;
+  }
+}
+
+export function buildWebRedirectUrl(
+  baseUrl: string,
+  params: Record<string, string>,
+): string {
+  const query = new URLSearchParams(params).toString();
+  return `${baseUrl}${query ? `?${query}` : ""}`;
 }
 
 /** Optional shared secret required on server-to-server calls (token refresh). */
