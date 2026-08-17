@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
       prompt: "consent",
       trigger_onepick: "true",
       allow_folder_selection: "true",
+      mimetypes: "application/vnd.google-apps.folder",
     });
     if (loginHint) params.set("login_hint", loginHint);
 
