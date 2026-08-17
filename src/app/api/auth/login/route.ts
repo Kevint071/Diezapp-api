@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
   });
 
   const response = NextResponse.redirect(`${GOOGLE_AUTH_ENDPOINT}?${params.toString()}`);
-  const cookieOptions = oauthCookieOptions(request);
+  const cookieOptions = oauthCookieOptions();
   response.cookies.set(STATE_COOKIE, googleState, cookieOptions);
   response.cookies.set(VERIFIER_COOKIE, verifier, cookieOptions);
   response.cookies.set(APP_STATE_COOKIE, appState, cookieOptions);

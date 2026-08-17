@@ -27,11 +27,13 @@ export const VERIFIER_COOKIE = "gdrive_oauth_verifier";
 export const APP_STATE_COOKIE = "gdrive_oauth_app_state";
 export const WEB_RETURN_URL_COOKIE = "gdrive_oauth_web_return_url";
 
-export function oauthCookieOptions(request: NextRequest) {
+export function oauthCookieOptions() {
   return {
     httpOnly: true,
-    secure: request.nextUrl.protocol === "https:",
-    sameSite: "lax" as const,
+    // The browser returns from accounts.google.com to this backend, so the
+    // OAuth state must survive a cross-site top-level redirect.
+    secure: true,
+    sameSite: "none" as const,
     maxAge: 300,
     path: "/api/auth",
   };
@@ -40,7 +42,7 @@ export function oauthCookieOptions(request: NextRequest) {
 export const OAUTH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: true,
-  sameSite: "lax" as const,
+  sameSite: "none" as const,
   maxAge: 300,
   path: "/api/auth",
 };
