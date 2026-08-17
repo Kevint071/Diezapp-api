@@ -28,6 +28,9 @@ export const GOOGLE_PICKER_SCOPE = "https://www.googleapis.com/auth/drive.file";
 export const STATE_COOKIE = "gdrive_oauth_state";
 export const VERIFIER_COOKIE = "gdrive_oauth_verifier";
 export const APP_STATE_COOKIE = "gdrive_oauth_app_state";
+export const PICKER_STATE_COOKIE = "gdrive_picker_state";
+export const PICKER_VERIFIER_COOKIE = "gdrive_picker_verifier";
+export const PICKER_APP_STATE_COOKIE = "gdrive_picker_app_state";
 export const PICKER_ACCOUNT_COOKIE = "gdrive_picker_account";
 
 export function oauthCookieOptions(request: NextRequest) {

@@ -4,9 +4,9 @@ import {
   GOOGLE_AUTH_ENDPOINT,
   GOOGLE_PICKER_SCOPE,
   PICKER_ACCOUNT_COOKIE,
-  STATE_COOKIE,
-  VERIFIER_COOKIE,
-  APP_STATE_COOKIE,
+  PICKER_STATE_COOKIE,
+  PICKER_VERIFIER_COOKIE,
+  PICKER_APP_STATE_COOKIE,
   googleClientId,
   oauthCookieOptions,
   pickerCallbackRedirectUri,
@@ -50,9 +50,9 @@ export async function GET(request: NextRequest) {
 
     const response = NextResponse.redirect(`${GOOGLE_AUTH_ENDPOINT}?${params}`);
     const options = { ...oauthCookieOptions(request), path: "/api" };
-    response.cookies.set(STATE_COOKIE, state, options);
-    response.cookies.set(VERIFIER_COOKIE, verifier, options);
-    response.cookies.set(APP_STATE_COOKIE, appState, options);
+    response.cookies.set(PICKER_STATE_COOKIE, state, options);
+    response.cookies.set(PICKER_VERIFIER_COOKIE, verifier, options);
+    response.cookies.set(PICKER_APP_STATE_COOKIE, appState, options);
     response.cookies.set(PICKER_ACCOUNT_COOKIE, accountId, options);
     return response;
   } catch {

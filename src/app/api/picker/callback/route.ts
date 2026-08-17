@@ -1,12 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
-  APP_STATE_COOKIE,
   GOOGLE_ABOUT_ENDPOINT,
   GOOGLE_TOKEN_ENDPOINT,
   GOOGLE_FILES_ENDPOINT,
+  PICKER_APP_STATE_COOKIE,
   PICKER_ACCOUNT_COOKIE,
-  STATE_COOKIE,
-  VERIFIER_COOKIE,
+  PICKER_STATE_COOKIE,
+  PICKER_VERIFIER_COOKIE,
   buildAppRedirectUrl,
   googleClientId,
   googleClientSecret,
@@ -14,19 +14,24 @@ import {
 } from "@/lib/google-oauth";
 
 function clearPickerCookies(response: NextResponse): void {
-  for (const name of [STATE_COOKIE, VERIFIER_COOKIE, APP_STATE_COOKIE, PICKER_ACCOUNT_COOKIE]) {
+  for (const name of [
+    PICKER_STATE_COOKIE,
+    PICKER_VERIFIER_COOKIE,
+    PICKER_APP_STATE_COOKIE,
+    PICKER_ACCOUNT_COOKIE,
+  ]) {
     response.cookies.set(name, "", { path: "/api", maxAge: 0 });
   }
 }
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
-  const appState = request.cookies.get(APP_STATE_COOKIE)?.value ?? "";
+  const appState = request.cookies.get(PICKER_APP_STATE_COOKIE)?.value ?? "";
   const accountId = request.cookies.get(PICKER_ACCOUNT_COOKIE)?.value ?? "";
   const pickedFileId = searchParams.get("picked_file_ids")?.split(",")[0] ?? "";
   const state = searchParams.get("state");
-  const expectedState = request.cookies.get(STATE_COOKIE)?.value;
-  const verifier = request.cookies.get(VERIFIER_COOKIE)?.value;
+  const expectedState = request.cookies.get(PICKER_STATE_COOKIE)?.value;
+  const verifier = request.cookies.get(PICKER_VERIFIER_COOKIE)?.value;
 
   if (searchParams.get("error") || !pickedFileId) {
     const response = NextResponse.redirect(
