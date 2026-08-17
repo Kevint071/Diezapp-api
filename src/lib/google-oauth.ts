@@ -17,14 +17,18 @@ export const GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/aut
 export const GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
 export const GOOGLE_USERINFO_ENDPOINT =
   "https://openidconnect.googleapis.com/v1/userinfo";
+export const GOOGLE_FILES_ENDPOINT = "https://www.googleapis.com/drive/v3/files";
+export const GOOGLE_ABOUT_ENDPOINT = "https://www.googleapis.com/drive/v3/about";
 export const GOOGLE_OAUTH_SCOPE =
   "https://www.googleapis.com/auth/drive.file openid email";
+export const GOOGLE_PICKER_SCOPE = "https://www.googleapis.com/auth/drive.file";
 
 // Cookies are scoped to /api/auth and short-lived: they only need to survive
 // the round trip through Google's consent screen.
 export const STATE_COOKIE = "gdrive_oauth_state";
 export const VERIFIER_COOKIE = "gdrive_oauth_verifier";
 export const APP_STATE_COOKIE = "gdrive_oauth_app_state";
+export const PICKER_ACCOUNT_COOKIE = "gdrive_picker_account";
 
 export function oauthCookieOptions(request: NextRequest) {
   return {
@@ -64,6 +68,11 @@ export function googleClientSecret(): string {
 export function callbackRedirectUri(request: NextRequest): string {
   const base = process.env.PUBLIC_APP_URL || request.nextUrl.origin;
   return `${base.replace(/\/$/, "")}/api/auth/callback`;
+}
+
+export function pickerCallbackRedirectUri(request: NextRequest): string {
+  const base = process.env.PUBLIC_APP_URL || request.nextUrl.origin;
+  return `${base.replace(/\/$/, "")}/api/picker/callback`;
 }
 
 /**
