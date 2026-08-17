@@ -5,3 +5,10 @@ node_modules
 .env
 .env.local
 .env.*.local
+
+# Other files
+zscaler**
+tsconfig.tsbuildinfo
+
+# Vs Code
+.vscode

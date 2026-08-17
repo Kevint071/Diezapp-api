@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0f131b;
+  --foreground: #f1f5f9;
 }
 
 @theme inline {
@@ -12,15 +12,115 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+.home-shell {
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 28px 5vw 22px;
+  background: #0f131b;
+  position: relative;
+}
+
+.home-shell::before {
+  content: "";
+  position: absolute;
+  width: 540px;
+  height: 540px;
+  right: -190px;
+  top: 90px;
+  border: 1px solid rgba(45, 145, 255, .1);
+  border-radius: 50%;
+  box-shadow: 0 0 0 70px rgba(45, 145, 255, .02), 0 0 0 140px rgba(45, 145, 255, .014);
+  pointer-events: none;
+}
+
+.topbar, .footer-bar { position: relative; z-index: 1; display: flex; align-items: center; }
+.topbar { justify-content: space-between; max-width: 1240px; margin: 0 auto; }
+.brand { display: flex; gap: 10px; align-items: center; color: #f4f6f3; font-size: 16px; font-weight: 700; letter-spacing: -.03em; text-decoration: none; }
+.brand-mark { display: grid; place-items: center; width: 36px; height: 36px; overflow: hidden; border-radius: 10px; background: transparent; }
+.environment-pill { display: flex; align-items: center; gap: 8px; color: #9da59d; font: 11px var(--font-geist-mono), monospace; letter-spacing: .08em; text-transform: uppercase; }
+.environment-pill i, .green-dot, .red-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+.environment-pill i, .green-dot { background: #35a4ff; box-shadow: 0 0 12px #35a4ff; }
+.red-dot { background: #ff6b6b; box-shadow: 0 0 12px #ff6b6b; }
+.hero { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(280px, 1fr) minmax(320px, 470px); gap: 11vw; align-items: center; max-width: 1120px; min-height: calc(100vh - 145px); margin: 0 auto; }
+.hero-copy { animation: rise .7s ease both; }
+.eyebrow { margin: 0 0 27px; color: #839087; font: 11px var(--font-geist-mono), monospace; letter-spacing: .16em; }
+h1 { max-width: 650px; margin: 0; color: #f1f5f9; font-size: clamp(54px, 7.5vw, 105px); font-weight: 600; letter-spacing: -.09em; line-height: .88; }
+h1 em { color: #35a4ff; font-style: normal; }
+.hero-description { max-width: 410px; margin: 31px 0 21px; color: #919a92; font-size: 16px; line-height: 1.55; }
+.endpoint-line { display: flex; align-items: center; gap: 10px; width: fit-content; margin-bottom: 27px; padding: 8px 10px; border: 1px solid #2b3b52; background: #141c2a; color: #dbeafe; }
+.method-badge { padding: 3px 6px; background: #2998ff; color: #071426; font: 10px var(--font-geist-mono), monospace; font-weight: 700; }
+.endpoint-line code { color: #52adff; font: 12px var(--font-geist-mono), monospace; }
+.endpoint-purpose { padding-left: 10px; border-left: 1px solid #34465f; color: #8899af; font: 10px var(--font-geist-mono), monospace; }
+.check-button { display: inline-flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 20px; border: 0; border-radius: 14px; background: #2998ff; color: #071426; cursor: pointer; font-size: 14px; font-weight: 700; box-shadow: 0 9px 22px rgba(41, 152, 255, .2); transition: transform .2s, background .2s, box-shadow .2s; }
+.check-button:hover { background: #52adff; box-shadow: 0 12px 28px rgba(41, 152, 255, .3); transform: translateY(-2px); }
+.check-button:disabled { cursor: wait; opacity: .72; transform: none; }
+.button-icon { display: grid; place-items: center; width: 20px; height: 20px; border: 1.7px solid currentColor; border-radius: 50%; font-size: 13px; line-height: 1; }
+.button-spinner { width: 15px; height: 15px; border: 2px solid rgba(16,20,13,.3); border-top-color: #10140d; border-radius: 50%; animation: spin .7s linear infinite; }
+.privacy-note { margin: 16px 0 0; color: #68716a; font: 11px var(--font-geist-mono), monospace; }
+.privacy-note span { color: #35a4ff; }
+.status-card { padding: 25px; border: 1px solid #2b3b52; border-radius: 20px; background: rgba(28, 40, 59, .92); box-shadow: 24px 24px 0 rgba(41, 152, 255, .045); animation: rise .7s .14s ease both; }
+.card-topline, .status-meta { display: flex; justify-content: space-between; gap: 16px; }
+.card-topline { color: #778178; font: 10px var(--font-geist-mono), monospace; letter-spacing: .12em; }
+.card-dots { color: #52adff; letter-spacing: 3px; }
+.health-banner { display: flex; align-items: center; gap: 14px; margin: 42px 0 22px; padding: 14px; border: 1px solid rgba(82, 173, 255, .25); border-radius: 14px; background: rgba(41, 152, 255, .08); }
+.health-banner.error { border-color: rgba(255, 107, 107, .3); background: rgba(255, 107, 107, .08); }
+.health-banner.checking .health-indicator { animation: pulse-dot 1s ease-in-out infinite; }
+.health-indicator { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #2998ff; color: #071426; font-size: 17px; font-weight: 800; }
+.health-banner.error .health-indicator { background: #ff6b6b; }
+.health-banner span:last-child { display: grid; gap: 4px; }
+.health-banner small, .health-facts small { color: #8799af; font: 9px var(--font-geist-mono), monospace; letter-spacing: .1em; }
+.health-banner strong { color: #f1f5f9; font-size: 20px; letter-spacing: -.03em; }
+.health-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.health-facts > span { display: grid; gap: 7px; padding: 13px; border: 1px solid #2b3b52; background: #182437; }
+.health-facts code, .health-facts strong { color: #52adff; font: 12px var(--font-geist-mono), monospace; }
+.health-facts strong { color: #dbeafe; }
+.status-detail { min-height: 22px; margin: 18px 0 31px; color: #8595a9; text-align: center; font-size: 13px; }
+.status-meta { padding-top: 16px; border-top: 1px solid #283029; color: #768078; font: 10px var(--font-geist-mono), monospace; }
+.status-meta span:first-child { color: #52adff; }
+.status-meta b { margin-right: 7px; }
+.footer-bar { max-width: 1240px; margin: 0 auto; justify-content: space-between; color: #535d55; font: 10px var(--font-geist-mono), monospace; letter-spacing: .05em; }
+.footer-bar b { color: #89938b; font-weight: 400; }
+.footer-line { flex: 1; height: 1px; max-width: 220px; margin: 0 22px; background: #202720; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-dot { 50% { transform: scale(1.12); box-shadow: 0 0 0 8px rgba(41, 152, 255, .12); } }
+@media (max-width: 700px) {
+  .home-shell { display: flex; flex-direction: column; padding: 18px 18px 16px; }
+  .topbar { width: 100%; }
+  .brand { font-size: 15px; }
+  .brand-mark { width: 34px; height: 34px; }
+  .environment-pill { font-size: 9px; letter-spacing: .04em; }
+  .hero { display: flex; flex: 1; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 27px; min-height: auto; padding: 45px 0 32px; }
+  .eyebrow { margin-bottom: 18px; font-size: 10px; letter-spacing: .12em; }
+  h1 { max-width: 430px; font-size: clamp(55px, 17vw, 86px); letter-spacing: -.08em; line-height: .91; }
+  .hero-description { max-width: 360px; margin: 22px 0 17px; font-size: 15px; line-height: 1.5; }
+  .endpoint-line { width: 100%; margin-bottom: 19px; padding: 9px 10px; }
+  .endpoint-purpose { margin-left: auto; }
+  .check-button { width: 100%; min-height: 54px; justify-content: center; border-radius: 15px; }
+  .privacy-note { margin-top: 12px; font-size: 10px; line-height: 1.4; }
+  .status-card { padding: 18px; border-radius: 18px; box-shadow: 10px 10px 0 rgba(41, 152, 255, .045); }
+  .card-topline { font-size: 9px; }
+  .health-banner { margin: 28px 0 15px; padding: 12px; }
+  .health-banner strong { font-size: 18px; }
+  .health-facts > span { padding: 11px; }
+  .status-detail { min-height: 18px; margin: 15px 0 22px; font-size: 12px; }
+  .status-meta { flex-direction: column; align-items: flex-start; gap: 9px; padding-top: 13px; font-size: 9px; }
+  .footer-bar { margin-top: auto; font-size: 9px; }
+  .footer-line { display: none; }
+  .footer-bar span:last-child { display: none; }
+}
+
+@media (max-width: 380px) {
+  .hero { padding-top: 34px; gap: 22px; }
+  h1 { font-size: 50px; }
+  .hero-description { margin-top: 18px; }
+  .endpoint-purpose { display: none; }
 }
