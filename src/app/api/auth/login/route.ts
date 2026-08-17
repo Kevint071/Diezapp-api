@@ -7,7 +7,9 @@ import {
   STATE_COOKIE,
   VERIFIER_COOKIE,
   callbackRedirectUri,
+  createOAuthState,
   googleClientId,
+  googleClientSecret,
   oauthCookieOptions,
   validatedWebReturnUrl,
   WEB_RETURN_URL_COOKIE,
@@ -43,13 +45,14 @@ export async function GET(request: NextRequest) {
   try {
     redirectUri = callbackRedirectUri(request);
     clientId = googleClientId();
+    googleClientSecret();
   } catch {
     return NextResponse.json({ error: "server_not_configured" }, { status: 500 });
   }
 
-  const googleState = crypto.randomUUID();
   const verifier = base64url(crypto.randomBytes(64));
   const challenge = base64url(crypto.createHash("sha256").update(verifier).digest());
+  const googleState = createOAuthState(appState, verifier, webReturnUrl);
 
   const params = new URLSearchParams({
     client_id: clientId,

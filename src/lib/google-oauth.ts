@@ -11,6 +11,7 @@
  * deep link — a redirect Android/iOS allow because it originates from this
  * server, not from Google directly.
  */
+import crypto from "node:crypto";
 import type { NextRequest } from "next/server";
 
 export const GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -61,6 +62,64 @@ export function googleClientId(): string {
 
 export function googleClientSecret(): string {
   return requireEnv("GOOGLE_CLIENT_SECRET");
+}
+
+type OAuthState = {
+  appState: string;
+  verifier: string;
+  webReturnUrl: string | null;
+  expiresAt: number;
+};
+
+function oauthStateKey(): Buffer {
+  return crypto.createHash("sha256").update(googleClientSecret()).digest();
+}
+
+function base64url(value: Buffer): string {
+  return value.toString("base64url");
+}
+
+function fromBase64url(value: string): Buffer {
+  return Buffer.from(value, "base64url");
+}
+
+/** Encrypts the PKCE verifier so the callback does not depend on cookies. */
+export function createOAuthState(
+  appState: string,
+  verifier: string,
+  webReturnUrl: string | null,
+): string {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", oauthStateKey(), iv);
+  const payload: OAuthState = {
+    appState,
+    verifier,
+    webReturnUrl,
+    expiresAt: Date.now() + 5 * 60 * 1000,
+  };
+  const encrypted = Buffer.concat([
+    cipher.update(JSON.stringify(payload), "utf8"),
+    cipher.final(),
+  ]);
+  return [iv, cipher.getAuthTag(), encrypted].map(base64url).join(".");
+}
+
+export function parseOAuthState(value: string | null): OAuthState | null {
+  if (!value) return null;
+  try {
+    const [iv, authTag, encrypted] = value.split(".").map(fromBase64url);
+    if (!iv || !authTag || !encrypted) return null;
+    const decipher = crypto.createDecipheriv("aes-256-gcm", oauthStateKey(), iv);
+    decipher.setAuthTag(authTag);
+    const state = JSON.parse(
+      Buffer.concat([decipher.update(encrypted), decipher.final()]).toString(
+        "utf8",
+      ),
+    ) as OAuthState;
+    return state.expiresAt > Date.now() ? state : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Must exactly match the redirect_uri authorized in Google Cloud Console. */

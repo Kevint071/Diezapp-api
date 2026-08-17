@@ -10,6 +10,7 @@ import {
   callbackRedirectUri,
   googleClientId,
   googleClientSecret,
+  parseOAuthState,
   WEB_RETURN_URL_COOKIE,
 } from "@/lib/google-oauth";
 
@@ -33,8 +34,9 @@ function clearOAuthCookies(response: NextResponse): void {
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
-  const appState = request.cookies.get(APP_STATE_COOKIE)?.value ?? "";
-  const webReturnUrl = request.cookies.get(WEB_RETURN_URL_COOKIE)?.value;
+  const state = parseOAuthState(searchParams.get("state"));
+  const appState = state?.appState ?? "";
+  const webReturnUrl = state?.webReturnUrl;
   const redirect = (params: Record<string, string>) =>
     webReturnUrl
       ? buildWebRedirectUrl(webReturnUrl, params)
@@ -50,11 +52,9 @@ export async function GET(request: NextRequest) {
   }
 
   const code = searchParams.get("code");
-  const returnedState = searchParams.get("state");
-  const expectedState = request.cookies.get(STATE_COOKIE)?.value;
-  const verifier = request.cookies.get(VERIFIER_COOKIE)?.value;
+  const verifier = state?.verifier;
 
-  if (!code || !returnedState || !verifier || returnedState !== expectedState) {
+  if (!code || !state || !verifier) {
     const response = NextResponse.redirect(
       redirect({ error: "invalid_state", app_state: appState })
     );
